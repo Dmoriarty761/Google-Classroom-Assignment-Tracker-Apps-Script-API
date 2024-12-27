@@ -31,14 +31,6 @@ Use Cases
 Teachers: Monitor which students are on track and who needs follow-up.
 Administrators: Gain an overview of classroom performance and assignment completion trends.
 
-Example Output
-
-Student Name	       Class Name	     Assignment Name	     Status
-John Doe    	       Math 101	       Homework 1	           TURNED_IN
-Jane Smith	         History 201	   Essay Draft         	 MISSING
-Michael Johnson	     Science 301	   Lab Report	           TURNED_IN
-
-
 Customization
 By default, the script tracks all students in your classrooms.
 To filter specific students, modify the specific students array in the script.
