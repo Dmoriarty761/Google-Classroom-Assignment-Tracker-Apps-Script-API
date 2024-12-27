@@ -1,0 +1,58 @@
+function getAssignmentsForSpecificStudents() {
+  // Define an empty list for specific students (can be dynamically populated later)
+  var specificStudents = []; // Placeholder, no predefined student names
+
+  // Get the active spreadsheet and create a new sheet or clear existing data
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Classroom Data") || ss.insertSheet("Classroom Data");
+  sheet.clear(); // Clear the sheet before adding new data
+
+  // Set headers for the Google Sheet
+  sheet.appendRow(["Student Name", "Class Name", "Assignment Name", "Status"]);
+
+  // Get list of Google Classrooms (Courses)
+  var courses = Classroom.Courses.list().courses;
+
+  if (courses && courses.length > 0) {
+    // Loop through each course (Google Classroom)
+    courses.forEach(function(course) {
+      var courseName = course.name;
+      var courseId = course.id;
+
+      // Get the list of coursework (assignments) for each course
+      var courseWork = Classroom.Courses.CourseWork.list(courseId).courseWork;
+      var students = Classroom.Courses.Students.list(courseId).students;
+
+      if (students && courseWork) {
+        // Loop through each student in the course
+        students.forEach(function(student) {
+          var studentName = student.profile.name.fullName;
+
+          // Check if the student is in the list of specific students (empty list means no filtering)
+          if (specificStudents.indexOf(studentName) > -1 || specificStudents.length === 0) {
+            // Loop through each assignment in the course
+            courseWork.forEach(function(work) {
+              var assignmentName = work.title;
+              var submissions = Classroom.Courses.CourseWork.StudentSubmissions.list(courseId, work.id).studentSubmissions;
+
+              if (submissions && submissions.length > 0) {
+                var status = submissions[0].state; // Get submission status (e.g., "TURNED_IN" or "MISSING")
+                
+                // Append the student, class, assignment, and status to the Google Sheet
+                sheet.appendRow([studentName, courseName, assignmentName, status]);
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+}
+
+// Function to set up a trigger to run this function every hour
+function createHourlyTrigger() {
+  ScriptApp.newTrigger('getAssignmentsForSpecificStudents')
+    .timeBased()
+    .everyHours(1)  // Set to run every hour
+    .create();
+}
